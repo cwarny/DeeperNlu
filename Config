@@ -33,6 +33,11 @@ package.DeeperNlu = {
             # See setup.py
             #
             # Python-setuptools = default;
+
+            PyTorch = 1.2.x;
+            Python-ujson = 1.35;
+            Python-pandas = 0.x;
+            Python-sklearn = 0.x;
         };
     };
 
