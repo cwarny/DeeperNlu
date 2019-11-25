@@ -28,7 +28,7 @@ class Optimizer:
         ]
     
     def zero_grad(self):
-        for p,hyper in self.grad_params():
+        for p,_ in self.grad_params():
             p.grad.detach_()
             p.grad.zero_()
     
