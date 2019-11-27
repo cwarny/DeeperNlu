@@ -43,17 +43,17 @@ class TokenizeProcessor(Processor):
         return ' '.join(tokens)
 
 class NumericalizeProcessor(Processor):
-    def __init__(self, vocab=None, max_vocab=60000, min_freq=2, unk_idx=0, special_tokens=None):
-        self.vocab, self.unk_idx, self.max_vocab, self.min_freq = vocab, unk_idx, max_vocab, min_freq
+    def __init__(self, vocab=None, max_vocab=60000, min_freq=2, unk_idx=0, pad_idx=1, special_tokens=None):
+        self.vocab, self.max_vocab, self.min_freq, self.unk_idx, self.pad_idx = vocab, max_vocab, min_freq, unk_idx, pad_idx
         if special_tokens is not None: assert isinstance(special_tokens, dict), 'special_tokens needs to be a dict mapping the special token to an index'
         else: special_tokens = {}
-        self.special_tokens = list(special_tokens.items())
+        self.special_tokens = list(special_tokens.items()) + [('<unk>', unk_idx), ('<pad>', pad_idx)]
 
     def __call__(self, items):
         if self.vocab is None:
             freq = Counter(p for o in items for p in o)
             self.vocab = [o for o,c in freq.most_common(self.max_vocab) if c >= self.min_freq]
-            for tok,idx in sorted(self.special_tokens, key=lambda d:-d[1]):
+            for tok,idx in sorted(self.special_tokens, key=lambda d:d[1]):
                 if tok in self.vocab: self.vocab.remove(tok)
                 self.vocab.insert(idx, tok)
         if getattr(self, 'otoi', None) is None:
@@ -67,7 +67,7 @@ class NumericalizeProcessor(Processor):
         return [self.vocab[i] for i in idx]
 
     def save(self, path):
-        with open(path, 'w') as f: json.dump({'vocab':self.vocab, 'unk_idx':self.unk_idx}, f)
+        with open(path, 'w') as f: json.dump({'vocab':self.vocab, 'unk_idx':self.unk_idx, 'pad_idx':self.pad_idx}, f)
     
     @classmethod
     def from_json(cls, path):

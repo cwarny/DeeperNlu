@@ -32,7 +32,7 @@ class StackedRecurrent(nn.Sequential):
         hidden = hidden or tuple([None] * len(self)) # `len(self)` returns the number of layers
         next_hidden = []
         for i,module in enumerate(self._modules.values()):
-            x_packed = pack_padded_sequence(x, lengths, batch_first=True)
+            x_packed = pack_padded_sequence(x, lengths, enforce_sorted=False, batch_first=True)
             output, h = module(x_packed, hidden[i])
             output, _ = pad_packed_sequence(output, batch_first=True)
             next_hidden.append(h)
@@ -98,12 +98,9 @@ class RNNForIcAndNer(nn.Module):
             rnn_residual=3,
             rnn_dropout=0.5,
             batch_first=True,
-            bidirectional=True,
-            padding_idx=1
+            bidirectional=True
         ):
         super().__init__()
-
-        self.padding_idx = padding_idx
         
         self.rnn_stack = RecurrentNet(
             input_size=input_size, 
@@ -119,27 +116,25 @@ class RNNForIcAndNer(nn.Module):
         self.fc = nn.Linear(hidden_size*(2 if bidirectional else 1), label_vocab_size)
         self.classifier = nn.Linear(hidden_size*(2 if bidirectional else 1), intent_vocab_size)
 
-    def forward(self, inp, initial_hidden_state=None, apply_softmax=False):
-        bs, seq_size = inp.size()
-        mask = (inp == self.padding_idx)
-        lengths = seq_size - mask.long().sum(1)
+    def forward(self, inp, lengths, initial_hidden_state=None, apply_softmax=False):
+        bs = inp.size(0)
         rnn_output, _ = self.rnn_stack(inp, lengths, initial_hidden_state)
         last_rnn_output = rnn_output[torch.arange(0, bs), lengths-1] # gather last states
-        ic_output = self.classifier(last_rnn_output)
-        ner_output = self.fc(rnn_output)
+        ic_out = self.classifier(last_rnn_output)
+        ner_out = self.fc(rnn_output)
 
         if apply_softmax:
-            ner_output = F.softmax(ner_output, dim=-1)
-            ic_output = F.softmax(ic_output, dim=-1)
+            ner_out = F.softmax(ner_out, dim=-1)
+            ic_out = F.softmax(ic_out, dim=-1)
         
-        return ic_output, ner_output
+        return ic_out, ner_out
 
 class SequenceEncoder(nn.Module):
     def __init__(self, 
             vocab_size, 
             embedding_size, 
             out_channels, 
-            padding_idx=0
+            padding_idx=1
         ):
         super().__init__()
         self.emb = nn.Embedding(vocab_size, embedding_size, padding_idx=padding_idx)
