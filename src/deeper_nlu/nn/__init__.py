@@ -184,8 +184,7 @@ class SelfInitializableModule(nn.Module):
 class BertForIcAndNer(nn.Module):
     def __init__(self, encoding_size, hidden_size, label_vocab_size, intent_vocab_size, n_hidden_layers=5, bert_model_name='bert-base-uncased', bert_model_cache=None, freeze=True, padding_idx=1):
         super().__init__()
-        pytorch_transformers = __import__('pytorch_transformers')
-        BertModel = getattr(pytorch_transformers, 'BertModel')
+        from transformers import BertModel
         self.encoder = BertModel.from_pretrained(bert_model_name, cache_dir=bert_model_cache)
         if freeze:
             for p in self.encoder.parameters(): p.requires_grad = False
@@ -204,7 +203,7 @@ class BertForIcAndNer(nn.Module):
 class BertForMLM(nn.Module):
     def __init__(self, bert_model_name, bert_model_dir=None):
         super().__init__()
-        from pytorch_transformers import BertForMaskedLM
+        from transformers import BertForMaskedLM
         self.mlm = BertForMaskedLM.from_pretrained(bert_model_name, cache_dir=bert_model_dir)
     
     def forward(self, x, apply_softmax=False):

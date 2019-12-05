@@ -10,19 +10,25 @@ cd DeeperNlu
 python setup.py install
 ```
 
-DeeperNlu has some dependencies that are not available in the standard PyTorch DL AMI. In particular, the package `pytorch_transformers`, very useful for all things BERT and other things, needs to be installed manually. Here are the steps:
+DeeperNlu has some dependencies that are not available in the standard PyTorch DL AMI. In particular, the package `transformers`, very useful for all things BERT and other things, needs to be installed manually. Here are the steps:
 
+* Make sure you are using on you local laptop the Python3.6 version of `pip` (or whatever version of Python you ultimately use on Hoverboard)
+* Make sure you are using the latest version of `pip` for that version of Python (`pip install pip --upgrade`)
 * On your local laptop:
 
 ```
-mkdir pytorch-transformers
-pip download --no-cache-dir --platform=manylinux1_x86_64 --only-binary=:all: pytorch-transformers sentencepiece tqdm joblib -d pytorch-transformers
-pip download --no-cache-dir --platform=manylinux1_x86_64 --no-deps regex sacremoses -d pytorch-transformers
+mkdir transformers
+pip download --no-cache-dir --platform=manylinux1_x86_64 --only-binary=:all: transformers sentencepiece tqdm joblib -d pytorch-transformers
+pip download --no-cache-dir --platform=manylinux1_x86_64 --no-deps regex sacremoses -d transformers
 ```
 
-* Copy over to dev desktop: `scp -r pytorch-transformers dev:~/hoverboard-workspaces/src`
+* Copy over to dev desktop: `scp -r transformers dev:~/hoverboard-workspaces/src`
 * Wait for it to sync
-* On HB: `pip install --no-index --find-links=file:/home/ec2-user/workspaces/hoverboard-workspaces/src/pytorch-transformers pytorch-transformers`
+* Go to HB
+* `source activate pytorch_p36`
+* `pip install --no-index --find-links=file:/home/ec2-user/workspaces/hoverboard-workspaces/src/transformers transformers`
+* You'll see some error about `fastai`, don't worry about it
+* Test that the `transformers` library was correctly installed: `python -c 'import transformers'`
 
 Model weights are exiled and listed in the exile manifest. For instance, to get the BERT model weights: `exile resolve models/bert`. You will need to do this if you want to use pretrained BERT.
 
