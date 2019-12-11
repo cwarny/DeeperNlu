@@ -32,11 +32,12 @@ class StackedRecurrent(nn.Sequential):
         hidden = hidden or tuple([None] * len(self)) # `len(self)` returns the number of layers
         next_hidden = []
         for i,module in enumerate(self._modules.values()):
-            x_packed = pack_padded_sequence(x, lengths, enforce_sorted=False, batch_first=True)
-            output, h = module(x_packed, hidden[i])
-            output, _ = pad_packed_sequence(output, batch_first=True)
+            # x_packed = pack_padded_sequence(x, lengths, enforce_sorted=False, batch_first=True)
+            # output, h = module(x_packed, hidden[i])
+            output, h = module(x, hidden[i])
+            # output, _ = pad_packed_sequence(output, batch_first=True)
             next_hidden.append(h)
-            x, _ = pad_packed_sequence(x_packed, batch_first=True)
+            # x, _ = pad_packed_sequence(x_packed, batch_first=True)
             if self.residual <= i and x.size(-1) == output.size(-1):
                 x = output + x
             else:
