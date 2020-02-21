@@ -9,6 +9,7 @@ from collections import defaultdict
 from functools import partial
 from .processor import *
 import ujson as json
+import numpy as np
 
 class TabularDataset(Dataset):
     def __init__(self, df):
@@ -111,7 +112,7 @@ class EmpiricalSampler(Sampler):
     def __init__(self, data_source, key): self.data_source, self.key = data_source, key
     def __len__(self): return len(self.data_source)
     def __iter__(self):
-        counts = tensor(list(map(key, self.data_source)))
+        counts = tensor(list(map(self.key, self.data_source)))
         counts = counts.sqrt()
         total = counts.sum()
         pvals = counts/total

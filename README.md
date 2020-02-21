@@ -18,8 +18,8 @@ DeeperNlu has some dependencies that are not available in the standard PyTorch D
 
 ```
 mkdir transformers
-pip download --no-cache-dir --platform=manylinux1_x86_64 --only-binary=:all: transformers sentencepiece tqdm joblib -d pytorch-transformers
-pip download --no-cache-dir --platform=manylinux1_x86_64 --no-deps regex sacremoses -d transformers
+pip download --no-cache-dir --platform=manylinux1_x86_64 --only-binary=:all: transformers==2.4.0 sentencepiece tqdm joblib -d transformers
+pip download --no-cache-dir --platform=manylinux1_x86_64 --no-deps regex sacremoses tokenizers==0.0.11 -d transformers
 ```
 
 * Copy over to dev desktop: `scp -r transformers dev:~/hoverboard-workspaces/src`
