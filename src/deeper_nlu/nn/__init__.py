@@ -183,10 +183,10 @@ class SelfInitializableModule(nn.Module):
     def weight(self): return self.module.weight
 
 class BertForIcAndNer(nn.Module):
-    def __init__(self, encoding_size, hidden_size, label_vocab_size, intent_vocab_size, n_hidden_layers=5, bert_model_cache=None, freeze=True, padding_idx=1):
+    def __init__(self, encoding_size, hidden_size, label_vocab_size, intent_vocab_size, n_hidden_layers=5, bert_model_name='bert-base-uncased', bert_model_cache=None, freeze=True, padding_idx=1):
         super().__init__()
         from transformers import BertModel
-        self.encoder = BertModel.from_pretrained(bert_model_cache)
+        self.encoder = BertModel.from_pretrained(bert_model_name, cache_dir=bert_model_cache)
         if freeze:
             for p in self.encoder.parameters(): p.requires_grad = False
         self.lin_ner = MultiLayerPerceptron(encoding_size, hidden_size, label_vocab_size, n_hidden_layers=n_hidden_layers)
