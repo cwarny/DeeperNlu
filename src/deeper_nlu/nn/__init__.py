@@ -194,7 +194,7 @@ class BertForIcAndNer(nn.Module):
         self.padding_idx = padding_idx
     
     def forward(self, x, apply_softmax=False):
-        text, profile = x
+        text, *_ = x
         encoded = self.encoder(text)[0]
         ner_out = self.lin_ner(encoded[:,1:,:])
         ic_out = self.lin_ic(encoded[:,0,:])
