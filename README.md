@@ -1,7 +1,5 @@
 # DeeperNlu
 
-Code repo for shared tools for SNL team.
-
 ## Installation
 
 ```
